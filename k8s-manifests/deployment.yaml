@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-pods
+  labels:
+    app: k8s-pods
+spec:
+  replicas: 250
+  selector:
+    matchLabels:
+      app: k8s-pods
+  template:
+    metadata:
+      labels:
+        app: k8s-pods
+    spec:
+      containers:
+      - name: k8s-container
+        image: nginx
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+        ports:
+        - containerPort: 80
