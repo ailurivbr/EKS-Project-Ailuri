@@ -6,7 +6,7 @@
 Access is secured via:
 
 - An IAM role that can be assumed only by the IAM user arn:aws:iam::xxxx:user/xxxxx.
-- A source IP restriction allowing usage of the IAM role only from IP 52.94.236.248.
+- A source IP restriction allowing usage of the IAM role only from IP xx.xx.xx.xx.
 - Mapping this role to Kubernetes via the aws-auth ConfigMap.
 - Binding the IAM identity to a Kubernetes RBAC role with read-only access to all resources in the ops namespace.
 
@@ -21,7 +21,7 @@ Creates an IAM role named OpsUserRole with:
 
 Trust policy allowing assumption only by the ops-alice IAM user.
 
-IP restriction on 52.94.236.248.
+IP restriction on xx.xx.xx.xx.
 
 2. Kubernetes aws-auth Mapping (modules/opsuser-k8s-rbac)
 Maps the IAM role to Kubernetes user/group using the aws-auth config map
