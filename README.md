@@ -12,7 +12,7 @@ Access is secured via:
 
 ### Architecture Overview
 
-- IAM Role – Trusted by ops-alice IAM user, assumes role only from IP 52.94.236.248.
+- IAM Role – Trusted by ops-alice IAM user, assumes role only from IP: xxxxxxxxxxx
 - aws-auth Mapping – Maps the IAM role to a Kubernetes user (opsuser) and group (ops-read-only).
 - RBAC Role & Binding – Grants the ops-read-only group read-only access in the ops namespace.
 
