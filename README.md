@@ -5,7 +5,7 @@
 ### This setup grants a user (ops-alice) view-only access to all Kubernetes resources in the ops namespace of an Amazon EKS cluster. 
 Access is secured via:
 
-- An IAM role that can be assumed only by the IAM user arn:aws:iam::1234566789001:user/ops-alice.
+- An IAM role that can be assumed only by the IAM user arn:aws:iam::xxxx:user/xxxxx.
 - A source IP restriction allowing usage of the IAM role only from IP 52.94.236.248.
 - Mapping this role to Kubernetes via the aws-auth ConfigMap.
 - Binding the IAM identity to a Kubernetes RBAC role with read-only access to all resources in the ops namespace.
