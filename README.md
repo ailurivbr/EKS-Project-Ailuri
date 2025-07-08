@@ -81,6 +81,14 @@ Installs AWS CloudWatch Container Insights via Helm:
 terraform init
 terraform plan
 terraform apply
+
+To register the Cluter in your CLI, run below command:
+
+aws eks update-kubeconfig --name eks-k8s --region us-east-1
+aws eks describe-cluster --name eks-k8s --query "cluster.endpoint" --output text
+kubectl get nodes
+kubectl apply -f deployment.yaml
+kubectl get pods
 ```
 
 ## Validation
