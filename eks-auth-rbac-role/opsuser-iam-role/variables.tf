@@ -1,11 +1,9 @@
-variable "role_name" {
-    type = string
+variable "allowed_account_id" {
+  description = "AWS account ID that can assume this role"
+  type        = string
 }
 
-variable "user_arn" {
-    type = string
-}
-
-variable "source_ip" {
-    type = string
+variable "allowed_ip" {
+  description = "CIDR IP allowed to assume the role"
+  type        = string
 }

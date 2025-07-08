@@ -1,20 +1,22 @@
-data "aws_iam_policy_document" "assume_role" {
+resource "aws_iam_role" "opsuser_role" {
+  name = "OpsUserRole-eks"
+
+  assume_role_policy = data.aws_iam_policy_document.assume.json
+}
+
+data "aws_iam_policy_document" "assume" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
     principals {
       type        = "AWS"
-      identifiers = [var.user_arn]
+      identifiers = ["arn:aws:iam::${var.allowed_account_id}:root"]
     }
-    actions = ["sts:AssumeRole"]
     condition {
       test     = "IpAddress"
       variable = "aws:SourceIp"
-      values   = [var.source_ip]
+      values   = [var.allowed_ip]
     }
   }
 }
 
-resource "aws_iam_role" "opsuser_role" {
-  name               = var.role_name
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}

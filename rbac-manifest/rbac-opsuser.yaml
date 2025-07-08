@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: kube-system
+  name: ops-readonly
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["get", "list", "watch"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ops-readonly-binding
+  namespace: kube-system
+subjects:
+  - kind: Group
+    name: ops-readonly-group
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: ops-readonly
+  apiGroup: rbac.authorization.k8s.io
