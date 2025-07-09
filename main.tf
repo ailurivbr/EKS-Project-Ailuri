@@ -1,50 +1,56 @@
-## These providers let Terraform install Helm charts in the cluster.
-
+# Allows Terraform to interact with Kubernetes cluster (for Helm, etc.)
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate)
-  token                  = data.aws_eks_cluster_auth.token.token
+  token                  = data.aws_eks_cluster_auth.this.token
 }
 
+# Helm provider will use the default Kubernetes provider config
 provider "helm" {
   kubernetes {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate)
-    token                  = data.aws_eks_cluster_auth.token.token
+    token                  = data.aws_eks_cluster_auth.this.token
   }
 }
 
-data "aws_eks_cluster_auth" "token" {
+
+###############################################
+# EKS Authentication Data Source
+###############################################
+
+# Fetches authentication token for the EKS cluster
+data "aws_eks_cluster_auth" "this" {
   name = module.eks.cluster_name
 }
 
-#############################################################
-
-## This Helm chart: Deploys the CloudWatch Agent DaemonSet, Collects metrics from nodes and pods, Sends them to CloudWatch Container Insights
+###############################################
+# Helm Chart: AWS CloudWatch Metrics
+#
+# Deploys:
+#   - CloudWatch Agent DaemonSet
+#   - Collects node/pod metrics
+#   - Sends metrics to CloudWatch Container Insights
+###############################################
 
 resource "helm_release" "cloudwatch_agent" {
-  name       = "aws-cw-metrics"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-cloudwatch-metrics"
-  namespace  = "amazon-cloudwatch"
-
+  name             = "aws-cw-metrics"
+  repository       = "https://aws.github.io/eks-charts"
+  chart            = "aws-cloudwatch-metrics"
+  namespace        = "amazon-cloudwatch"
   create_namespace = true
 
-  set {
-    name  = "clusterName"
-    value = module.eks.cluster_name
-  }
-
-  set {
-    name  = "region"
-    value = var.aws_region
-  }
+  values = [
+    yamlencode({
+      clusterName = module.eks.cluster_name
+      region      = var.aws_region
+    })
+  ]
 }
 
-
-###############################################################
-
-## Root modules
+###############################################
+# VPC Module
+###############################################
 
 module "vpc" {
   source               = "./Modules/VPC"
@@ -54,12 +60,20 @@ module "vpc" {
   public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
+###############################################
+# EKS Cluster Module
+###############################################
+
 module "eks" {
   source             = "./Modules/EKS"
   name               = "eks-k8s"
   subnet_ids         = module.vpc.private_subnet_ids
   kubernetes_version = "1.29"
 }
+
+###############################################
+# EKS Node Group Module
+###############################################
 
 module "node_group" {
   source       = "./Modules/Node-group"
@@ -72,5 +86,3 @@ module "node_group" {
   min_size      = 3
   max_size      = 6
 }
-
-
