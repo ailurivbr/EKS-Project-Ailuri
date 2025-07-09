@@ -10,7 +10,7 @@ variable "cluster_name" {
 
 variable "service_account_namespace" {
   type    = string
-  default = "kube-system"
+  default = "default"
 }
 
 variable "service_account_name" {
