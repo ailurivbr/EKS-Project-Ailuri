@@ -55,7 +55,7 @@ Creates a managed node group with:
 
 - Scaling config supporting the desired pod density
 
-- Kubernetes ENI limits dictate ~250 pods per node
+- Kubernetes ENI limits dictate ~250 pods per node (This is applied using deployment.yml manifest which is added in this branch)
 
 - Uses private subnets
 
