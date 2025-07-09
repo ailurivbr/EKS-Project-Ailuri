@@ -1,23 +1,24 @@
-# variable "cluster_name" {
-#   default = "eks-cluster"
-# }
-
 variable "aws_region" {
-  type = string
+  type    = string
+  default = "us-east-1"
 }
 
-# variable "vpc_cidr" {
-#   default = "10.0.0.0/16"
-# }
+variable "cluster_name" {
+  type    = string
+  default = "eks-k8s"
+}
 
-# variable "public_subnet_cidrs" {
-#   default = ["10.0.1.0/24", "10.0.2.0/24"]
-# }
+variable "service_account_namespace" {
+  type    = string
+  default = "kube-system"
+}
 
-# variable "private_subnet_cidrs" {
-#   default = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-# }
+variable "service_account_name" {
+  type    = string
+  default = "order-processor"
+}
 
-# variable "node_instance_type" {
-#   default = "m5.2xlarge"
-# }
+variable "s3_bucket_name" {
+  type    = string
+  default = "s3-incoming-orders"
+}

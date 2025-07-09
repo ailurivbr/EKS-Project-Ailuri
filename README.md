@@ -1,113 +1,37 @@
-# AWS EKS Cluster with Terraform
+# Terraform - EKS IRSA Role for S3 Access
 
-This Terraform configuration deploys an Amazon EKS cluster with:
+This Terraform configuration provisions the IAM role, policy, and Kubernetes service account needed to allow pods using the `order-processor` role service account to get AWS credentials via IAM Roles for Service Accounts (IRSA), granting them permission to list and read objects in the `s3-incoming-orders` S3 bucket.
 
-✅ A dedicated new VPC (with public and private subnets across at least 2 AZs)
-✅ Highly available design (resilient to single AZ failure)
-✅ Managed node group sized to run ~250 pods per node (ENI limit)
-✅ Nodes sized for 28 GB peak memory each
-✅ CloudWatch Container Insights for monitoring & logs
+## 📜 Requirements
 
-## How It Works
+- AWS CLI installed and configured
+- Terraform v1.0+
+- kubectl configured to access your EKS cluster
+- Existing EKS cluster with OIDC provider enabled
+- The target S3 bucket (`s3incoming-orders`)
 
-### VPC Module
+## ⚙️ What This Does
 
-Creates a new VPC with:
-
-- CIDR block
-
-- At least 2 public and 2 private subnets in different AZs
-
-- NAT Gateway for private subnets
-
-- Ensures resilience to single AZ failure
-
+- Creates an IAM policy allowing:
 ```
-Example:
-
-vpc_cidr = "10.0.0.0/16"
-public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
-private_subnet_cidrs = ["10.0.101.0/24", "10.0.102.0/24"]
+  - s3:ListBucket on s3-incoming-orders
+  - s3:GetObject on s3-incoming-orders/*
 ```
+- Creates an IAM role trusted by the EKS cluster’s OIDC provider:
+  - Limited to the `order-processor` Kubernetes service account in your namespace
 
-### EKS Module
+- Attaches the policy to the role
 
-Creates an EKS cluster with:
-
-- Control plane logging (audit, api, scheduler, etc.)
-
-- Enabled public/private endpoints
-
-- IAM role for the cluster
-
-- CloudWatch logs are enabled
-
-```
-name               = "eks-k8s"
-kubernetes_version = "1.29"
-```
-
-### Node Group Module
-
-Creates a managed node group with:
-
-- Instance type ≈ m5.2xlarge
-
-- Scaling config supporting the desired pod density
-
-- Kubernetes ENI limits dictate ~250 pods per node
-
-- Uses private subnets
-
-- Spans multiple AZs
-
-### CloudWatch Agent Helm Chart
-
-Installs AWS CloudWatch Container Insights via Helm:
-
-- Metrics collection
-
-- Log forwarding
-
-- Admin can monitor metrics and logs in AWS Console
+- Creates/updates the Kubernetes service account with the `eks.amazonaws.com/role-arn` annotation pointing to the IAM role
 
 ## How to Deploy
+
 - Clone the repo
 - Initialize Terraform
 - Review planned changes
 - Apply the config
-
-```
-terraform init
-terraform plan
-terraform apply
-
-To register the Cluter in your CLI, run below command:
-
-aws eks update-kubeconfig --name eks-k8s --region us-east-1
-aws eks describe-cluster --name eks-k8s --query "cluster.endpoint" --output text
-kubectl get nodes
-kubectl apply -f deployment.yaml
-kubectl get pods
-```
-
-## Validation
-
-- Check EKS cluster in AWS Console
-
-- Verify node group health
-
-- Check subnets across AZs
-
-- View logs in CloudWatch:
-```
-API
-Audit
-Scheduler
-ControllerManager
-```
-- View Container Insights metrics
-
-
+- terraform init
+- terraform plan
+- terraform apply
 
 
